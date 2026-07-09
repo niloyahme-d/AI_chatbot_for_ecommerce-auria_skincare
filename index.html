@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auria Skincare — AI Support Assistant Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pine:#16302B;
+    --pine-soft:#234A41;
+    --amber:#E4A62B;
+    --bg:#EEF2ED;
+    --paper:#FFFFFF;
+    --ink:#1C1F1D;
+    --muted:#6B7570;
+    --border:#DCE3DE;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family:'IBM Plex Sans',sans-serif;
+    color:var(--ink);
+    padding:32px 16px;
+    display:flex;
+    justify-content:center;
+  }
+  .browser{
+    width:100%;
+    max-width:1080px;
+    background:var(--paper);
+    border-radius:14px;
+    box-shadow:0 20px 60px rgba(22,48,43,0.12);
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .chrome{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 16px;
+    background:#F4F6F4;
+    border-bottom:1px solid var(--border);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:#D8DED9;}
+  .urlbar{
+    flex:1;
+    margin-left:12px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:6px 16px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .site{
+    position:relative;
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    min-height:560px;
+  }
+  .hero{
+    padding:56px 48px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 85% 15%, rgba(228,166,43,0.10), transparent 45%),
+      var(--paper);
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    font-weight:600;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:44px;
+    line-height:1.08;
+    margin:0 0 18px;
+    color:var(--pine);
+  }
+  p.lead{
+    font-size:16px;
+    line-height:1.6;
+    color:var(--muted);
+    max-width:420px;
+    margin:0 0 28px;
+  }
+  .cta{
+    display:inline-flex;
+    width:fit-content;
+    padding:13px 26px;
+    background:var(--pine);
+    color:#fff;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    text-decoration:none;
+  }
+  .badge{
+    margin-top:34px;
+    font-size:12px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .badge b{color:var(--pine);}
+  .site-right{
+    background:var(--pine);
+    position:relative;
+    overflow:hidden;
+  }
+  .site-right::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 20% 80%, rgba(228,166,43,0.18), transparent 55%);
+  }
+
+  /* Chat widget */
+  .widget{
+    position:absolute;
+    right:24px;
+    bottom:24px;
+    top:24px;
+    width:340px;
+    background:#fff;
+    border-radius:16px;
+    box-shadow:0 24px 48px rgba(0,0,0,0.28);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    font-family:'IBM Plex Sans',sans-serif;
+  }
+  .widget-head{
+    background:var(--pine);
+    color:#fff;
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:var(--amber);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:600;color:var(--pine);font-size:14px;
+  }
+  .widget-head .name{font-weight:600;font-size:14px;}
+  .widget-head .status{font-size:11px;opacity:0.75;display:flex;align-items:center;gap:5px;}
+  .status .pulse{width:6px;height:6px;border-radius:50%;background:#5FD68C;}
+
+  .chat-body{
+    flex:1;
+    padding:16px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:#F7F9F7;
+  }
+  .msg{
+    max-width:82%;
+    padding:10px 13px;
+    border-radius:14px;
+    font-size:13.5px;
+    line-height:1.5;
+  }
+  .msg.bot{
+    background:#fff;
+    border:1px solid var(--border);
+    align-self:flex-start;
+    border-bottom-left-radius:4px;
+  }
+  .msg.user{
+    background:var(--pine);
+    color:#fff;
+    align-self:flex-end;
+    border-bottom-right-radius:4px;
+  }
+  .typing{
+    align-self:flex-start;
+    display:flex;
+    gap:4px;
+    padding:12px 14px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    border-bottom-left-radius:4px;
+  }
+  .typing span{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--muted);
+    animation:bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2){animation-delay:0.15s;}
+  .typing span:nth-child(3){animation-delay:0.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-4px);opacity:1;}}
+
+  .quick-replies{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    padding:0 16px 12px;
+    background:#F7F9F7;
+  }
+  .qr-btn{
+    border:1px solid var(--pine-soft);
+    background:#fff;
+    color:var(--pine);
+    padding:7px 12px;
+    border-radius:20px;
+    font-size:12px;
+    cursor:pointer;
+    font-weight:500;
+    transition:background 0.15s;
+  }
+  .qr-btn:hover{background:#EAF1EC;}
+
+  .composer{
+    display:flex;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid var(--border);
+    background:#fff;
+  }
+  .composer input{
+    flex:1;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:10px 16px;
+    font-size:13.5px;
+    outline:none;
+    font-family:inherit;
+  }
+  .composer input:focus{border-color:var(--pine-soft);}
+  .send{
+    width:38px;height:38px;
+    border-radius:50%;
+    background:var(--pine);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .send:hover{background:var(--pine-soft);}
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:18px;
+  }
+  footer b{color:var(--pine);}
+
+  @media(max-width:820px){
+    .site{grid-template-columns:1fr;}
+    .site-right{min-height:640px;}
+    h1{font-size:32px;}
+    .hero{padding:36px 28px;}
+  }
+</style>
+</head>
+<body>
+
+<div style="width:100%;max-width:1080px;">
+  <div class="browser">
+    <div class="chrome">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <div class="urlbar">🔒 auriaskincare.com</div>
+    </div>
+    <div class="site">
+      <div class="hero">
+        <div class="eyebrow">Auria Skincare — Live Site</div>
+        <h1>Skin that glows,<br>without the guesswork.</h1>
+        <p class="lead">Clean, dermatologist-tested formulas made for real skin. Ask our assistant about orders, returns, or booking a free skin consult — it answers instantly, day or night.</p>
+        <a class="cta" href="#">Shop the collection →</a>
+        <div class="badge"><b>●</b> AI Assistant embedded — try it on the right →</div>
+      </div>
+      <div class="site-right">
+        <div class="widget">
+          <div class="widget-head">
+            <div class="avatar">A</div>
+            <div>
+              <div class="name">Auria Assistant</div>
+              <div class="status"><span class="pulse"></span> Online now</div>
+            </div>
+          </div>
+          <div class="chat-body" id="chatBody">
+            <div class="msg bot">Hi! I'm Auria's assistant. I can help with order tracking, returns, bookings, or connect you to our team. What do you need?</div>
+          </div>
+          <div class="quick-replies" id="quickReplies">
+            <button class="qr-btn" data-msg="Track my order">📦 Track my order</button>
+            <button class="qr-btn" data-msg="Book a consultation">🗓️ Book a consultation</button>
+            <button class="qr-btn" data-msg="Return policy">↩️ Return policy</button>
+            <button class="qr-btn" data-msg="Talk to a human">🙋 Talk to a human</button>
+          </div>
+          <div class="composer">
+            <input type="text" id="userInput" placeholder="Type a message…">
+            <button class="send" id="sendBtn">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>Built by <b>Niloy Ahmed</b> (Fiverr: Masum) — AI-assisted chatbot &amp; automation integration for WordPress and small business sites.</footer>
+</div>
+
+<script>
+const chatBody = document.getElementById('chatBody');
+const input = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const quickReplies = document.getElementById('quickReplies');
+let awaitingOrderNumber = false;
+let awaitingBookingDetails = false;
+
+function addMsg(text, sender){
+  const div = document.createElement('div');
+  div.className = 'msg ' + sender;
+  div.textContent = text;
+  chatBody.appendChild(div);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function showTyping(){
+  const t = document.createElement('div');
+  t.className = 'typing';
+  t.id = 'typingIndicator';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  chatBody.appendChild(t);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+function removeTyping(){
+  const t = document.getElementById('typingIndicator');
+  if(t) t.remove();
+}
+
+function botReply(userText){
+  const text = userText.toLowerCase();
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    let reply;
+
+    if(awaitingOrderNumber){
+      awaitingOrderNumber = false;
+      reply = `Got it — order #${userText.replace(/\D/g,'') || userText} shipped yesterday via Sundarban Courier and is expected within 2–3 business days. Want the tracking link sent to your email?`;
+    } else if(awaitingBookingDetails){
+      awaitingBookingDetails = false;
+      reply = `Perfect, you're booked for a free skin consult. A confirmation has been added to our calendar and you'll get a reminder 1 hour before. Anything else I can help with?`;
+    } else if(text.includes('order') || text.includes('track')){
+      awaitingOrderNumber = true;
+      reply = "Sure! Could you share your order number? (e.g. AUR-10234)";
+    } else if(text.includes('book') || text.includes('consult') || text.includes('appointment')){
+      awaitingBookingDetails = true;
+      reply = "I'd love to set that up. What day and time works best for you?";
+    } else if(text.includes('return') || text.includes('refund')){
+      reply = "We offer a 30-day return window on unopened products. I can start a return for you now, or send the full policy — which would you like?";
+    } else if(text.includes('human') || text.includes('agent') || text.includes('talk')){
+      reply = "Of course — connecting you to our support team now. Typical reply time is under 10 minutes during business hours (9am–7pm, Sat–Thu).";
+    } else if(text.includes('hour') || text.includes('open')){
+      reply = "We're online in chat 24/7, and our team is live 9am–7pm, Saturday to Thursday.";
+    } else {
+      reply = "I can help with order tracking, bookings, returns, or connecting you to our team — which would you like?";
+    }
+    addMsg(reply, 'bot');
+  }, 750 + Math.random()*400);
+}
+
+function handleSend(){
+  const val = input.value.trim();
+  if(!val) return;
+  addMsg(val, 'user');
+  input.value = '';
+  botReply(val);
+}
+
+sendBtn.addEventListener('click', handleSend);
+input.addEventListener('keypress', e => { if(e.key === 'Enter') handleSend(); });
+
+quickReplies.addEventListener('click', e => {
+  if(e.target.classList.contains('qr-btn')){
+    const msg = e.target.getAttribute('data-msg');
+    addMsg(msg, 'user');
+    botReply(msg);
+  }
+});
+</script>
+</body>
+</html>
